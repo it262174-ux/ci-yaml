@@ -20,6 +20,9 @@ jobs:
       - name: check file 
         run: ls -la  
 
+      - name: file list
+        run: cat reult.txt  
+
   build-check:
     needs: [yaml-check, lint-check]
     runs-on: ubuntu-latest
