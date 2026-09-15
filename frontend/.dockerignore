@@ -1,0 +1,6 @@
+.env
+.env.*
+*.log
+.git/
+node_modules/
+private.txt

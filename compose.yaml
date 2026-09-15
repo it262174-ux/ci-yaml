@@ -1,0 +1,102 @@
+x-common: &common
+  restart: unless-stopped
+  networks:
+    - shop-network
+  environment:
+    LOG_LEVEL: info
+    APP_ENV: production
+ 
+
+x-default-logging: &default_logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  secrects:
+    image: alpine:3.20
+    command:
+      - sleep
+      - "3600"
+    profiles:
+      - tools
+    secrets:
+      - db_password    
+  debug:
+    image: alpine:3.20
+    command:
+      - sleep
+      - "3600"
+    profiles:
+      - debug
+    <<: *common
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        APP_VERSION: 2.0
+    env_file:
+      - env/.frontend.env
+    image: shop-frontend:2.0  
+    ports:
+      - "8080:80"
+ 
+    <<: *common
+   
+  api:
+    build:
+      context: ./api
+    image: shop-api:1.0
+    configs:
+      - source: app.config
+        target: /app/config/app.config
+    environment:
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+
+    ports:
+      - "5001:5000"
+    depends_on:
+      database:
+        condition: service_healthy
+    <<: *common
+    logging: *default_logging
+
+  database:
+    image: postgres:17 
+    env_file:
+      - env/.database.env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    <<: *common
+    ports:
+      - "5432:5432"
+    command:
+      - postgres
+      - -c
+      - Max_connections=200
+   
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  
+
+volumes:
+  postgres_data:   
+
+networks:
+  shop-network:
+configs:
+  app.config:
+    file: ./config/app.config
+secrets:
+  db_password:
+    file: ./secrets/db_password.txt    
+
+    

@@ -1,0 +1,20 @@
+services:
+
+
+  frontend:
+    environment:
+      APP_VERSION: ${APP_VERSION:-2.0}
+    
+      restart: always
+
+  api:
+    ports: !override
+      - "${API_PORT:-5003}:5000"
+    environment:
+      APP_ENV: ${APP_ENV:-production}   
+  database:
+    ports: !reset []
+      
+      
+      
+     

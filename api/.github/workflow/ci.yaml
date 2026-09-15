@@ -1,0 +1,21 @@
+name: Yaml lab CI 
+on:
+  push:
+    branches:
+      -main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  yaml-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Yaml 
+        run: echo " Checking yaml configuration"
+
+  build-check:
+    needs: yaml-check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build check
+        run: echo "build start after yaml check"
