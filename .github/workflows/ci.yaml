@@ -10,7 +10,7 @@ jobs:
   lint-check:
     runs-on: ubuntu-latest
     steps:
-      -run: echo "Lint check for the code"
+      - run: echo "Lint check for the code"
   yaml-check:
     runs-on: ubuntu-latest
     steps:
