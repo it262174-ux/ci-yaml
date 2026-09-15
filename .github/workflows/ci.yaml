@@ -67,7 +67,7 @@ jobs:
             echo "TOKEN is missing"
             exit 1
           fi
-            echo "TOKEN is set"  
+          echo "TOKEN is set"  
   deploy-check:
     needs: build-check
     if: github.ref == 'refs/heads/main'
