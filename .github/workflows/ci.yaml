@@ -11,6 +11,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: echo "Lint check for the code"
+
+      - name: Runner info
+        run: |
+          whoami
+          pwd
+          uname -a
+          nproc
+           
   yaml-check:
     runs-on: ubuntu-latest
     steps:
