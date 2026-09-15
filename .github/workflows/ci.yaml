@@ -59,6 +59,15 @@ jobs:
           echo "SHA: ${{ github.ref }}"
           echo "SHA: ${{ github.repository }}"
           echo "IMAGE: $PROJECT:${{ github.sha }}"
+      - name:
+        env: 
+          TOKEN: ${{ secrects.DEMON_TOKEN }} 
+        run:
+          if [ -z "$TOKEN" ]; then
+            echo "TOKEN is missing"
+            exit 1
+            fi
+            echo "TOKEN is set"  
   deploy-check:
     needs: build-check
     if: github.ref == 'refs/heads/main'
