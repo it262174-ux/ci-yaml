@@ -61,12 +61,12 @@ jobs:
           echo "IMAGE: $PROJECT:${{ github.sha }}"
       - name:
         env: 
-          TOKEN: ${{ secrets.DEMON_TOKEN }} 
+          TOKEN: ${{ DEMON_TOKEN }} 
         run: |
           if [ -z "$TOKEN" ]; then
             echo "TOKEN is missing"
             exit 1
-          if
+          fi
           echo "TOKEN is set"  
   deploy-check:
     needs: build-check
