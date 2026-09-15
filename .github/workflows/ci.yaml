@@ -51,7 +51,6 @@ jobs:
 
       - name: Build check
         run: echo "build start"
-      - name: check env
-         
+
     
  
