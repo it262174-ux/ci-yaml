@@ -7,15 +7,19 @@ on:
   workflow_dispatch:
 
 jobs:
+  lint-check:
+    runs-on: ubuntu-latest
+    steps:
+      -run: echo "Lint check for the code"
   yaml-check:
     runs-on: ubuntu-latest
     steps:
       - name: Check Yaml 
-        run: echo " Checking yaml configuration"
+        run: echo " Checking yaml configuration" > result.txt
 
   build-check:
-    needs: yaml-check
+    needs: [yaml-check, lint-check]
     runs-on: ubuntu-latest
     steps:
       - name: Build check
-        run: echo "build start after yaml check"
+        run: cat result.txt
