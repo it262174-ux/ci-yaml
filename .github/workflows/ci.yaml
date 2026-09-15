@@ -5,10 +5,13 @@ on:
       - main
   pull_request:
   workflow_dispatch:
+env:
+  PROJECT: devops-shop
 
 jobs:
   lint-check:
-    runs-on: ubuntu-lastest
+    runs-on: ubuntu-latest
+
     steps:
       - run: echo "Lint check for the code"
 
@@ -18,9 +21,12 @@ jobs:
           pwd
           uname -a
           nproc
+      
 
   yaml-check:
     runs-on: ubuntu-latest
+    env:
+      STAGE: yaml
     steps:
       - name: Check Yaml 
         run: echo " Checking yaml configuration" > result.txt
@@ -30,10 +36,22 @@ jobs:
 
       - name: file list
         run: cat result.txt  
+        
+      - name: Env test
+        run: echo "$PROJECT - $STAGE" 
 
   build-check:
     needs: [yaml-check, lint-check]
     runs-on: ubuntu-latest
     steps:
+      - name: override
+        env:
+          APP_ENV: test
+        run: echo "$APP_ENV"
+
       - name: Build check
         run: echo "build start"
+      - name: check env
+         
+    
+ 
