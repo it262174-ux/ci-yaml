@@ -41,7 +41,7 @@ jobs:
         run: echo "$PROJECT - $STAGE" 
 
   build-check:
-    needs: [yaml-check, lint-check]
+    needs: [yaml-check, lint-check, test]
     runs-on: ubuntu-latest
     steps:
       - run: echo "$PROJECT - $STAGE"
@@ -81,7 +81,7 @@ jobs:
         run: echo "Manual deploy"        
 
   test:
-    run-on: ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
