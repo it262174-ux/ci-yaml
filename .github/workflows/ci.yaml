@@ -80,5 +80,19 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         run: echo "Manual deploy"        
 
-    
+  test:
+    run-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: install denpendencies
+        run: pip install pytest
+      - name: Run test
+        run: pytest    
+
+
  
