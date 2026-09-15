@@ -63,7 +63,7 @@ jobs:
     needs: build-check
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    step:
+    steps:
       - name: Deploy
         run: echo "Deploying with ${{ github.sha }}"  
 
