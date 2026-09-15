@@ -21,7 +21,7 @@ jobs:
         run: ls -la  
 
       - name: file list
-        run: cat reult.txt  
+        run: cat result.txt  
 
   build-check:
     needs: [yaml-check, lint-check]
