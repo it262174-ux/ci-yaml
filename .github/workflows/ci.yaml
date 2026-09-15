@@ -59,6 +59,17 @@ jobs:
           echo "SHA: ${{ github.ref }}"
           echo "SHA: ${{ github.repository }}"
           echo "IMAGE: $PROJECT:${{ github.sha }}"
+  deploy-check:
+    needs: build-check
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    step:
+      - name: Deploy
+        run: echo "Deploying with ${{ github.sha }}"  
+
+      - name: Deploy with manually
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "Manual deploy"        
 
     
  
