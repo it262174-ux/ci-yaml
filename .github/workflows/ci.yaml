@@ -44,6 +44,7 @@ jobs:
     needs: [yaml-check, lint-check]
     runs-on: ubuntu-latest
     steps:
+      - run: echo "$PROJECT - $STAGE"
       - name: override
         env:
           APP_ENV: test
