@@ -52,6 +52,13 @@ jobs:
 
       - name: Build check
         run: echo "build start"
+      
+      - name:
+        run: |
+          echo "SHA: ${{ github.sha }}"
+          echo "SHA: ${{ github.ref }}"
+          echo "SHA: ${{ github.repository }}"
+          echo "IMAGE: $PROJECT:${{ github.sha }}"
 
     
  
