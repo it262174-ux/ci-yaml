@@ -61,8 +61,8 @@ jobs:
           echo "IMAGE: $PROJECT:${{ github.sha }}"
       - name:
         env: 
-          TOKEN: ${{ secrects.DEMON_TOKEN }} 
-        run:
+          TOKEN: ${{ secrets.DEMON_TOKEN }} 
+        run: |
           if [ -z "$TOKEN" ]; then
             echo "TOKEN is missing"
             exit 1
