@@ -16,10 +16,12 @@ jobs:
     steps:
       - name: Check Yaml 
         run: echo " Checking yaml configuration" > result.txt
+      - name: check file 
+        runs: ls -la  
 
   build-check:
     needs: [yaml-check, lint-check]
     runs-on: ubuntu-latest
     steps:
       - name: Build check
-        run: cat result.txt
+        run: echo "build start"
