@@ -16,8 +16,9 @@ jobs:
     steps:
       - name: Check Yaml 
         run: echo " Checking yaml configuration" > result.txt
+
       - name: check file 
-        runs: ls -la  
+        run: ls -la  
 
   build-check:
     needs: [yaml-check, lint-check]
