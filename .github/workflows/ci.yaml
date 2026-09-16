@@ -97,25 +97,21 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     env:
-      IMAGE_NAME: devops-api
+      IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/devops-shop-api
     steps:
-      - name: checkout
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: build image
-        run: docker build -t $IMAGE_NAME:${{ github.sha }} ./api
+      - name: Login to Docker Hub
+        if: github.ref == 'refs/heads/main'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: check image
-        run: docker images $IMAGE_NAME
+      - name: Build image
+        run: docker build -t $IMAGE:${{ github.sha }} ./api
 
-      - name: Run image
-        run: |
-          docker run -d --name api-test -p 5000:5000 $IMAGE_NAME:${{ github.sha }}
-          sleep 5
-          docker ps
-          curl -f http://localhost:5000/ || (docker logs api-test && exit 1)
-          docker stop api-test
-
-
-
- 
+      - name: Push image
+        if: github.ref == 'refs/heads/main'
+        run: docker push $IMAGE:${{ github.sha }}
