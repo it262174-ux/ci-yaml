@@ -1,4 +1,4 @@
-FROM nginx:alpine
+FROM apline:9.99
 ARG APP_VERSION=1.0
 ENV APP_MODE=production
 RUN echo "Building frontend version: ${APP_VERSION}"
