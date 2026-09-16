@@ -69,7 +69,7 @@ jobs:
           fi
           echo "TOKEN is set"  
   deploy-check:
-    needs: [build-api,build-gateway,build-frontend]
+    needs: [build-api,build-gateway,build-frontend,build-check]
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
