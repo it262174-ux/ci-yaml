@@ -67,9 +67,9 @@ jobs:
             echo "TOKEN is missing"
             exit 1
           fi
-          echo "TOKEN is set"  
+          echo "TOKEN is set"
   deploy-check:
-    needs: [build-api,build-gateway,build-frontend,build-check]
+      needs: [build-api,build-gateway,build-frontend,build-check]
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
@@ -94,7 +94,7 @@ jobs:
       - name: Run test
         run: pytest    
   build-api:
-    needs: test
+    needs: build-check
     runs-on: ubuntu-latest
     env:
       IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/devops-shop-api
@@ -117,7 +117,7 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: docker push $IMAGE:${{ github.sha }}
   build-gateway:
-    needs: test
+    needs: build-check
     runs-on: ubuntu-latest
     env:
       IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/devops-shop-gateway
@@ -140,7 +140,7 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: docker push $IMAGE:${{ github.sha }}
   build-frontend:
-    needs: test
+    needs: build-check
     runs-on: ubuntu-latest
     env:
       IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/devops-shop-frontend
