@@ -7,7 +7,6 @@ on:
   workflow_dispatch:
 env:
   PROJECT: devops-shop
-
 jobs:
   lint-check:
     runs-on: ubuntu-latest
