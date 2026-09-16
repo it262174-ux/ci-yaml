@@ -109,7 +109,12 @@ jobs:
         run: docker images $IMAGE_NAME
 
       - name: Run image
-        run: docker run --rm $IMAGE_NAME:${{ github.sha }}
+        run: |
+          docker run -d --name api-test -p 5000:5000 $IMAGE_NAME:${{ github.sha }}
+          sleep 5
+          docker ps
+          curl -f http://localhost:5000/ || (docker logs api-test && exit 1)
+          docker stop api-test
 
 
 
