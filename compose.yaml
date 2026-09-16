@@ -1,11 +1,11 @@
+x-common-env: &common_env              # ✅ CHANGED: env ကို anchor သီးသန့်ခွဲ
+  LOG_LEVEL: info
+  APP_ENV: development
+
 x-common: &common
   restart: unless-stopped
   networks:
     - shop-network
-  environment:
-    LOG_LEVEL: info
-    APP_ENV: production
- 
 
 x-default-logging: &default_logging
   driver: json-file
@@ -14,50 +14,62 @@ x-default-logging: &default_logging
     max-file: "3"
 
 services:
-  secrects:
+  secrets-check:                       # ✅ CHANGED: secrects → secrets-check (typo)
     image: alpine:3.20
-    command:
-      - sleep
-      - "3600"
+    command: ["sleep", "3600"]
     profiles:
       - tools
     secrets:
-      - db_password    
+      - db_password
+
   debug:
     image: alpine:3.20
-    command:
-      - sleep
-      - "3600"
+    command: ["sleep", "3600"]
     profiles:
       - debug
     <<: *common
+
+  gateway:                             # ✅ CHANGED: gateway service အသစ်
+    build:
+      context: ./gateway
+    image: devops-shop-gateway:dev
+    ports:
+      - "8080:80"
+    depends_on:
+      - frontend
+      - api
+    <<: *common
+    logging: *default_logging
+
   frontend:
     build:
       context: ./frontend
       args:
-        APP_VERSION: 2.0
+        APP_VERSION: "2.0"             # ✅ CHANGED: quote (number မဖြစ်အောင်)
+    image: devops-shop-frontend:dev    # ✅ CHANGED: workflow နာမည်နဲ့ ကိုက်
     env_file:
       - env/.frontend.env
-    image: shop-frontend:2.0  
+    environment:
+      <<: *common_env
     ports:
-      - "8080:80"
- 
+      - "8081:80"
     <<: *common
-   
+    logging: *default_logging
+
   api:
     build:
       context: ./api
-    image: shop-api:1.0
+    image: devops-shop-api:dev         # ✅ CHANGED
     configs:
       - source: app.config
         target: /app/config/app.config
     environment:
+      <<: *common_env                  # ✅ CHANGED: LOG_LEVEL / APP_ENV မပျောက်အောင်
       DB_HOST: database
-      DB_PORT: 5432
+      DB_PORT: "5432"
       DB_NAME: ${POSTGRES_DB}
       DB_USER: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
-
     ports:
       - "5001:5000"
     depends_on:
@@ -67,7 +79,7 @@ services:
     logging: *default_logging
 
   database:
-    image: postgres:17 
+    image: postgres:17
     env_file:
       - env/.database.env
     healthcheck:
@@ -75,28 +87,27 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-    <<: *common
-    ports:
-      - "5432:5432"
     command:
       - postgres
       - -c
-      - Max_connections=200
-   
+      - max_connections=200
+    ports:
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-  
+    <<: *common
+    logging: *default_logging
 
 volumes:
-  postgres_data:   
+  postgres_data:
 
 networks:
   shop-network:
+
 configs:
   app.config:
     file: ./config/app.config
+
 secrets:
   db_password:
-    file: ./secrets/db_password.txt    
-
-    
+    file: ./secrets/db_password.txt
