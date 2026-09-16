@@ -68,9 +68,10 @@ jobs:
           fi
           echo "TOKEN is set"
   deploy-check:
-      needs: [build-api,build-gateway,build-frontend,build-check]
+    needs: [build-api,build-gateway,build-frontend,build-check]
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+      runs-on: ubuntu-latest
+      
     steps:
       - name: Deploy
         run: echo "Deploying with ${{ github.sha }}"  
