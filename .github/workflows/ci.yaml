@@ -100,7 +100,7 @@ jobs:
       IMAGE_NAME: devops-api
     steps:
       - name: check image
-        uses: action/checkout@v4
+        uses: actions/checkout@v4
 
       - name: build image
         run: docker build -t $IMAGE_NAME:${{ github.sha }} .
