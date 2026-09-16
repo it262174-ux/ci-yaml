@@ -116,7 +116,7 @@ jobs:
       - name: Push image
         if: github.ref == 'refs/heads/main'
         run: docker push $IMAGE:${{ github.sha }}
-    build-gateway:
+  build-gateway:
     needs: test
     runs-on: ubuntu-latest
     env:
@@ -139,7 +139,7 @@ jobs:
       - name: Push image
         if: github.ref == 'refs/heads/main'
         run: docker push $IMAGE:${{ github.sha }}
-    build-frontend:
+  build-frontend:
     needs: test
     runs-on: ubuntu-latest
     env:
