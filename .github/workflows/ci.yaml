@@ -148,6 +148,16 @@ jobs:
       - name: Build image
         run: docker build -t $IMAGE:${{ github.sha }} $CONTEXT
 
+      - name: Scan image
+        run: |
+          docker run --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            aquasec/trivy:$TRIVY_VERSION image \
+            --severity HIGH,CRITICAL \
+            --ignore-unfixed \
+            --exit-code 1 \
+            $IMAGE:${{ github.sha }}
+
       - name: Push image
         if: github.ref == 'refs/heads/main'
         run: docker push $IMAGE:${{ github.sha }}
@@ -170,6 +180,16 @@ jobs:
 
       - name: Build image
         run: docker build -t $IMAGE:${{ github.sha }} $CONTEXT
+
+      - name: Scan image
+        run: |
+          docker run --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            aquasec/trivy:$TRIVY_VERSION image \
+            --severity HIGH,CRITICAL \
+            --ignore-unfixed \
+            --exit-code 1 \
+            $IMAGE:${{ github.sha }}
 
       - name: Push image
         if: github.ref == 'refs/heads/main'
