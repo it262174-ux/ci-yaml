@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 env:
   PROJECT: devops-shop
-  TRIVY_VERSION: "0.xx.x"
+  TRIVY_VERSION: "0.74.0"
 jobs:
   lint-check:
     runs-on: ubuntu-latest
