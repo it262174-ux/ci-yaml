@@ -1,6 +1,6 @@
 FROM nginx:1.28.0-alpine-slim
 
-RUN apt-get update \
+RUN apk update --no-cache \
     && apt-get upgrade -y \
     && rm -rf /var/lib/apt/lists/*
 
