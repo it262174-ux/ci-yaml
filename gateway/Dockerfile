@@ -1,2 +1,2 @@
-FROM nginx:1.27-alpine
+FROM nginx:stable-trixie-perl
 COPY app.conf /etc/nginx/conf.d/default.conf
