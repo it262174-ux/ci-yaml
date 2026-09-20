@@ -217,9 +217,9 @@ jobs:
       - name: Deploy
         run: |
           ssh -i ~/.ssh/deploy_key \
-            ${{ secrets.EC2_USER }}@{{ secrets.EC2_HOST }} \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
             "cd ~/devops-shop && \ 
              export REGISTRY_USER=${{ secrets.DOCKERHUB_USERNAME }} && \
-             export IMAGE_TAG=${{ github.sh }} && \
+             export IMAGE_TAG=${{ github.sha }} && \
              docker compose -f compose.yaml -f compose.prod.yaml pull && \
              docker compose -f compose.yaml -f compose.prod.yaml up -d"
