@@ -220,6 +220,6 @@ jobs:
             ${{ secrets.EC2_USER }}@{{ secrets.EC2_HOST }} \
             "cd ~/devops-shop && \ 
              export REGISTRY_USER=${{ secrets.DOCKERHUB_USERNAME }} && \
-             export IMAGE_TAG=${{ guthub.sh }} && _
+             export IMAGE_TAG=${{ github.sh }} && _
              docker compose -f compose.yaml -f compose.prod.yaml pull && \
              docker compose -f compose.yaml -f compose.prod.yaml up -d"
