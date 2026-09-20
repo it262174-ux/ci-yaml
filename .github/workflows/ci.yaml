@@ -206,12 +206,12 @@ jobs:
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
-          echo '${{ secrets.EC2_SSH_KEY }}' > ~/.ssh/deploy_key  
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/deploy_key  
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
       - name: Copy compose file
         run: |
-          ssh -i ~/.ssh/deploy_key \
+          scp -i ~/.ssh/deploy_key \
             compose.yaml compose.prod.yaml \
             ${{ secrets.EC2_USER }}@{{ secrets.EC2_HOST }}:~/devops-shop/
       - name: Deploy
@@ -220,6 +220,6 @@ jobs:
             ${{ secrets.EC2_USER }}@{{ secrets.EC2_HOST }} \
             "cd ~/devops-shop && \ 
              export REGISTRY_USER=${{ secrets.DOCKERHUB_USERNAME }} && \
-             export IMAGE_TAG=${{ github.sh }} && _
+             export IMAGE_TAG=${{ github.sh }} && \
              docker compose -f compose.yaml -f compose.prod.yaml pull && \
              docker compose -f compose.yaml -f compose.prod.yaml up -d"
