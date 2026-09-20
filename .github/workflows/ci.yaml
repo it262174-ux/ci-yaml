@@ -196,7 +196,7 @@ jobs:
         run: docker push $IMAGE:${{ github.sha }}
 
   deploy:
-    needs: [build-gateway, build-frontend, build-api]
+    needs: [deploy-check]
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
