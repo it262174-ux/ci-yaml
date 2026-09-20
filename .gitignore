@@ -1,0 +1,14 @@
+# Secrets & env
+env/
+secrets/
+*.env
+.env
+*.pem
+
+#lab scretch files
+lab*.txt
+outside.text
+trigger-text.txt
+
+# OS / editor
+.DS_Store

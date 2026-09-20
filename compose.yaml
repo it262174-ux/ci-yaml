@@ -62,7 +62,7 @@ services:
     image: devops-shop-api:dev         # ✅ CHANGED
     configs:
       - source: app.config
-        target: /app/config/app.config
+        target: /app/config/app.conf
     environment:
       <<: *common_env                  # ✅ CHANGED: LOG_LEVEL / APP_ENV မပျောက်အောင်
       DB_HOST: database
@@ -106,7 +106,7 @@ networks:
 
 configs:
   app.config:
-    file: ./config/app.config
+    file: ./config/app.conf
 
 secrets:
   db_password:

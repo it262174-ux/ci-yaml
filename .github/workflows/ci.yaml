@@ -193,4 +193,33 @@ jobs:
 
       - name: Push image
         if: github.ref == 'refs/heads/main'
-        run: docker push $IMAGE:${{ github.sha }}            
+        run: docker push $IMAGE:${{ github.sha }}
+
+  deploy:
+    needs: [build-gateway, build-frontend, build-api]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo '${{ secrets.EC2_SSH_KEY }}' > ~/.ssh/deploy_key  
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.shh/known_hosts
+      - name: Copy compose file
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            compose.yaml compose.prod.yaml \
+            ${{ secrets.EC2_USER }}@{{ secrets.EC2_HOST }}:~/devops-shop/
+      - name: Deploy
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            ${{ secrets.EC2_USER }}@{{ secrets.EC2_HOST }} \
+            "cd ~/devops-shop && \ 
+             export REGISTRY_USER=${{ secrets.DOCKERHUB_USERNAME }} && \
+             export IMAGE_TAG=${{ guthub.sh }} && _
+             docker compose -f compose.yaml -f compose.prod.yaml pull && \
+             docker compose -f compose.yaml -f compose.prod.yaml up -d"
