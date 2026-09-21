@@ -214,6 +214,15 @@ jobs:
           scp -i ~/.ssh/deploy_key \
             compose.yaml compose.prod.yaml \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/devops-shop/
+
+      - name: save crrent version
+        run: |
+          ssh -i ~/.ssh/deploy-key \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
+            'cd ~/deploy-shop && \
+             docker inspect --format="{{.Config.Image}}" devops-shop-api-1 \
+               | cut -d: -f2 > .previous_tag 2>/dev/null || echo "" > .previous_tag: \
+             echo "Previous tag: $(cat .previous_tag)"'                
       - name: Deploy
         run: |
           ssh -i ~/.ssh/deploy_key \
@@ -224,6 +233,7 @@ jobs:
              docker compose -f compose.yaml -f compose.prod.yaml pull && \
              docker compose -f compose.yaml -f compose.prod.yaml up -d"
       - name: healthcheck
+        id: health
         run: |
           ssh -i ~/.ssh/deploy_key \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
@@ -238,3 +248,15 @@ jobs:
             echo "Healthy check FAILED"
             docker compose -f ~/deploy-shop/compose.yaml -f ~/deploy-shop/compose.prod.yaml ps
             exit 1'         
+      - name: Rollback
+        if: failure() && steps.health.outcome == 'failure'
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
+            'cd ~/devops-shop && \
+             PREV=$(cat .previous_tag) && \
+             if [ -z "$PREV" ]; then echo "No previous version to roll back to"; exit 1; fi && \
+             echo "Rolling back to $PREV" && \
+             export REGISTRY_USER=${{ secrets.DOCKERHUB_USERNAME }} && \
+             export IMAGE_TAG=$PREV && \
+             docker compose -f compose.yaml -f compose.prod.yaml up -d'      
