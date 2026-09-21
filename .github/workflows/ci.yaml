@@ -217,7 +217,7 @@ jobs:
 
       - name: save crrent version
         run: |
-          ssh -i ~/.ssh/deploy-key \
+          ssh -i ~/.ssh/deploy_key \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
             'cd ~/deploy-shop && \
              docker inspect --format="{{.Config.Image}}" devops-shop-api-1 \
