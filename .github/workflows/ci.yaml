@@ -227,7 +227,7 @@ jobs:
         run: |
           ssh -i ~/.ssh/deploy_key \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
-            for i in $(seq 1 15); do
+            'for i in $(seq 1 15); do
               if curl -fsS http://localhost/api/ > /dev/null; then
                 echo "Healthy after $i attempts"
                 exit 0
