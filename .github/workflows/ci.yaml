@@ -198,65 +198,56 @@ jobs:
   deploy:
     needs: [deploy-check]
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, ec2-prod]
+    env:
+      REGISTRY_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+      IMAGE_TAG: ${{ github.sha }}
     steps:
-      - name: checkout
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup SSH key
+      - name: Copy compose files
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/deploy_key  
-          chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
-      - name: Copy compose file
-        run: |
-          scp -i ~/.ssh/deploy_key \
-            compose.yaml compose.prod.yaml \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/devops-shop/
+          cp compose.yaml compose.prod.yaml ~/devops-shop/
+          cp -r config ~/devops-shop/
 
-      - name: save crrent version
+      - name: Save current version
         run: |
-          ssh -i ~/.ssh/deploy_key \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
-            'cd ~/devops-shop && \
-             docker inspect --format="{{.Config.Image}}" devops-shop-api-1 \
-               | cut -d: -f2 > .previous_tag 2>/dev/null || echo "" > .previous_tag: \
-             echo "Previous tag: $(cat .previous_tag)"'                
+          cd ~/devops-shop
+          docker inspect --format='{{.Config.Image}}' devops-shop-api-1 2>/dev/null \
+            | cut -d: -f2 > .previous_tag || echo "" > .previous_tag
+          echo "Previous tag: $(cat .previous_tag)"
+
       - name: Deploy
         run: |
-          ssh -i ~/.ssh/deploy_key \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
-            "cd ~/devops-shop && \ 
-             export REGISTRY_USER=${{ secrets.DOCKERHUB_USERNAME }} && \
-             export IMAGE_TAG=${{ github.sha }} && \
-             docker compose -f compose.yaml -f compose.prod.yaml pull && \
-             docker compose -f compose.yaml -f compose.prod.yaml up -d"
-      - name: healthcheck
+          cd ~/devops-shop
+          docker compose -f compose.yaml -f compose.prod.yaml pull
+          docker compose -f compose.yaml -f compose.prod.yaml up -d
+
+      - name: Health check
         id: health
         run: |
-          ssh -i ~/.ssh/deploy_key \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
-            'for i in $(seq 1 15); do
-              if curl -fsS http://localhost/api/ > /dev/null; then
-                echo "Healthy after $i attempts"
-                exit 0
-              fi
-              echo "attempt $i failed, retrying ..."
-              sleep 2
-            done
-            echo "Healthy check FAILED"
-            docker compose -f ~/deploy-shop/compose.yaml -f ~/deploy-shop/compose.prod.yaml ps
-            exit 1'         
+          for i in $(seq 1 15); do
+            if curl -fsS http://localhost/api/ > /dev/null; then
+              echo "Healthy after $i attempts"
+              exit 0
+            fi
+            echo "Attempt $i failed, retrying..."
+            sleep 2
+          done
+          echo "Health check FAILED"
+          cd ~/devops-shop
+          docker compose -f compose.yaml -f compose.prod.yaml ps
+          exit 1
+
       - name: Rollback
         if: failure() && steps.health.outcome == 'failure'
         run: |
-          ssh -i ~/.ssh/deploy_key \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
-            'cd ~/devops-shop && \
-             PREV=$(cat .previous_tag) && \
-             if [ -z "$PREV" ]; then echo "No previous version to roll back to"; exit 1; fi && \
-             echo "Rolling back to $PREV" && \
-             export REGISTRY_USER=${{ secrets.DOCKERHUB_USERNAME }} && \
-             export IMAGE_TAG=$PREV && \
-             docker compose -f compose.yaml -f compose.prod.yaml up -d'      
+          cd ~/devops-shop
+          PREV=$(cat .previous_tag)
+          if [ -z "$PREV" ]; then
+            echo "No previous version to roll back to"
+            exit 1
+          fi
+          echo "Rolling back to $PREV"
+          IMAGE_TAG=$PREV docker compose -f compose.yaml -f compose.prod.yaml up -d
