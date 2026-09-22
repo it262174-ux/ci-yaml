@@ -101,7 +101,15 @@ jobs:
       - name: install denpendencies
         run: pip install -r requirements-dev.txt
       - name: Run test
-        run: pytest    
+        run: pytest --junitxml=reports/test-report.xml
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: reports/test-report.xml
+          retention-days: 7  
   build-api:
     needs: build-check
     runs-on: ubuntu-latest
