@@ -100,6 +100,11 @@ jobs:
           restore-keys: |
             pip-${{ runner.os }}-
 
+      - name: Try to push a tag
+        run: |
+          git tag lab22-test
+          git push origin lab22-test      
+
       - name: install denpendencies
         run: pip install -r requirements-dev.txt
       - name: Run test
