@@ -7,6 +7,9 @@ on:
   workflow_dispatch:
 permissions:
   contents: read  
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}  
 env:
   PROJECT: devops-shop
   TRIVY_VERSION: "0.74.0"
@@ -217,6 +220,9 @@ jobs:
     needs: [deploy-check]
     if: github.ref == 'refs/heads/main'
     runs-on: [self-hosted, ec2-prod]
+    concurrency:
+      group: production-deploy
+      cancel-in-progress: false
     env:
       REGISTRY_USER: ${{ secrets.DOCKERHUB_USERNAME }}
       IMAGE_TAG: ${{ github.sha }}
