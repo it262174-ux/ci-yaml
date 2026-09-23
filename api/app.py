@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 @app.get("/")
 def home():
-    return {"service": "api", "status": "running"}
+    return {"service": "api", "status": "running V2"}
     
 @app.get("/db-check")
 def db_check():
