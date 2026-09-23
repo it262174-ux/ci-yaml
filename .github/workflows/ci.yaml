@@ -5,6 +5,8 @@ on:
       - main
   pull_request:
   workflow_dispatch:
+permissions:
+  contents: read  
 env:
   PROJECT: devops-shop
   TRIVY_VERSION: "0.74.0"
@@ -96,7 +98,7 @@ jobs:
           path: ~/.cache/pip
           key: pip-${{ runner.os }}-${{ hashFiles('requirements-dev.txt') }}
           restore-keys: |
-            pip-${{ runner.os }}-
+            pip-${{ runner.os }}-    
 
       - name: install denpendencies
         run: pip install -r requirements-dev.txt
