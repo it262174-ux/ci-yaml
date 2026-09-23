@@ -5,6 +5,8 @@ on:
       - main
   pull_request:
   workflow_dispatch:
+permissions:
+  contents: read  
 env:
   PROJECT: devops-shop
   TRIVY_VERSION: "0.74.0"
