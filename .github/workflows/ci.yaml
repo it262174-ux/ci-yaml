@@ -98,12 +98,7 @@ jobs:
           path: ~/.cache/pip
           key: pip-${{ runner.os }}-${{ hashFiles('requirements-dev.txt') }}
           restore-keys: |
-            pip-${{ runner.os }}-
-
-      - name: Try to push a tag
-        run: |
-          git tag lab22-test
-          git push origin lab22-test      
+            pip-${{ runner.os }}-    
 
       - name: install denpendencies
         run: pip install -r requirements-dev.txt
