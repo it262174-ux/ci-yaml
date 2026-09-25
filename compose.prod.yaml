@@ -1,14 +1,14 @@
 services:
   gateway:
     build: !reset null                 # ✅ server မှာ build မလုပ်
-    image: ${REGISTRY_USER:?REGISTRY_USER is required}/devops-shop-gateway:${IMAGE_TAG:?IMAGE_TAG is required}
+    image: ${REGISTRY:?REGISTRY is required}/devops-shop-api:${IMAGE_TAG:?IMAGE_TAG is required}
     ports: !override
       - "80:80"
     restart: always
 
   frontend:
     build: !reset null
-    image: ${REGISTRY_USER:?REGISTRY_USER is required}/devops-shop-frontend:${IMAGE_TAG:?IMAGE_TAG is required}
+    image: ${REGISTRY:?REGISTRY is required}/devops-shop-api:${IMAGE_TAG:?IMAGE_TAG is required}
     environment:
       APP_ENV: production
       APP_VERSION: ${IMAGE_TAG}
@@ -17,7 +17,7 @@ services:
 
   api:
     build: !reset null
-    image: ${REGISTRY_USER:?REGISTRY_USER is required}/devops-shop-api:${IMAGE_TAG:?IMAGE_TAG is required}
+    image: ${REGISTRY:?REGISTRY is required}/devops-shop-api:${IMAGE_TAG:?IMAGE_TAG is required}
     environment:
       APP_ENV: production
     ports: !reset []                   # gateway ကနေပဲ ဝင်

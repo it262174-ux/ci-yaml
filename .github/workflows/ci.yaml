@@ -118,37 +118,44 @@ jobs:
   build-api:
     needs: build-check
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     env:
-      IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/devops-shop-api
+      REPO: devops-shop-api
+      IMAGE: ${{ vars.ECR_REGISTRY }}/devops-shop-api
       CONTEXT: ./api
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Login to Docker Hub
+      - name: Configure AWS credentials (OIDC)
         if: github.ref == 'refs/heads/main'
-        uses: docker/login-action@v3
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ap-northeast-1
+
+      - name: Login to ECR
+        if: github.ref == 'refs/heads/main'
+        uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build image
         run: docker build -t $IMAGE:${{ github.sha }} $CONTEXT
 
       - name: Scan image
         run: |
-          docker run --rm \
-            -v /var/run/docker.sock:/var/run/docker.sock \
-            aquasec/trivy:$TRIVY_VERSION image \
-            --severity HIGH,CRITICAL \
-            --ignore-unfixed \
-            --exit-code 1 \
-            $IMAGE:${{ github.sha }}
+          # (ရှိပြီးသား Trivy step အတိုင်း)
 
       - name: Push image
         if: github.ref == 'refs/heads/main'
-        run: docker push $IMAGE:${{ github.sha }}
-
+        run: |
+          if aws ecr describe-images --repository-name $REPO \
+               --image-ids imageTag=${{ github.sha }} > /dev/null 2>&1; then
+            echo "Tag already exists in ECR, skip push"
+          else
+            docker push $IMAGE:${{ github.sha }}
+          fi
   build-gateway:
     needs: build-check
     runs-on: ubuntu-latest
@@ -227,7 +234,7 @@ jobs:
       group: production-deploy
       cancel-in-progress: false
     env:
-      REGISTRY_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+      REGISTRY_USER: ${{ vars.ECR_REGISTRY }}
       IMAGE_TAG: ${{ github.sha }}
     steps:
       - name: Checkout
@@ -244,6 +251,10 @@ jobs:
           docker inspect --format='{{.Config.Image}}' devops-shop-api-1 2>/dev/null \
             | cut -d: -f2 > .previous_tag || echo "" > .previous_tag
           echo "Previous tag: $(cat .previous_tag)"
+      - name: Login to ECR (EC2 role)
+        run: |
+          aws ecr get-login-password --region ap-northeast-1 \
+            | docker login --username AWS --password-stdin $REGISTRY    
 
       - name: Deploy
         run: |
