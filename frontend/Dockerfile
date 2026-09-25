@@ -1,4 +1,5 @@
 FROM nginx:alpine
+RUN apk upgrade --no-cache
 ARG APP_VERSION=1.0
 ENV APP_MODE=production
 RUN echo "Building frontend version: ${APP_VERSION}"
